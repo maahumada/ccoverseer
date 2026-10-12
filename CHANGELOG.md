@@ -2,6 +2,8 @@
 
 ## 0.1.0 (unreleased)
 
+- `scripts/demo.sh`: scripted demo and theme preview with an isolated cache and a demo polybar config.
+
 - Per-workspace badges for Claude Code sessions (working / done / idle / blocked) for i3 + polybar.
 - Terminal identification via `$WINDOWID`, with a process-tree fallback.
 - Rate-limit bar from the statusLine payload, with chaining to an existing statusLine.

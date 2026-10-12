@@ -110,6 +110,19 @@ eq "stale marker"       "▰▰▰▱▱▱▱▱▱▱ 31% ~" "$("$root/rendere
 rm -f "$CCO_CACHE_DIR/usage.json"
 eq "no data"            "claude --" "$("$root/renderers/polybar/usage.sh")"
 
+echo "demo scenario"
+demo() { CCO_DEMO_DIR="$tmp/demo" "$root/scripts/demo.sh" "$@"; }
+demo_render() {
+    ( eval "$(demo env)"; CCO_CLICK=0 CCO_ALT_PERIOD=2000000000 "$root/renderers/polybar/agents.sh" )
+}
+demo step 0; eq "demo: all working"            "1 ◐  2 ◐  3 ◐" "$(demo_render)"
+demo step 3; eq "demo: 2 done"                 "1 ◐  2 ●  3 ◐" "$(demo_render)"
+demo step 5; eq "demo: 3 blocked"              "1 ◐  2 ●  3 ▲" "$(demo_render)"
+demo step 7; eq "demo: 3 approved, working"    "1 ◐  2 ●  3 ◐" "$(demo_render)"
+demo step 9; eq "demo: 1 idle"                 "1 ○  2 ●  3 ◐" "$(demo_render)"
+eq "demo: usage climbs" "52" "$(demo step 10; jq -r .rate_limits.five_hour.used_percentage "$tmp/demo/usage.json")"
+gone "demo: real cache has no demo files" "$CCO_CACHE_DIR/demo-tree"
+
 echo "installer --merge-settings"
 export CLAUDE_CONFIG_DIR="$tmp/claude" XDG_DATA_HOME="$tmp/share"
 mkdir -p "$CLAUDE_CONFIG_DIR"

@@ -6,6 +6,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: shellcheck
-        run: shellcheck -x -s bash install.sh test/run.sh lib/common.sh lib/resolver/*.sh core/*.sh core/hooks/*.sh renderers/*/*.sh
+        run: shellcheck -x -s bash install.sh test/run.sh scripts/*.sh lib/common.sh lib/resolver/*.sh core/*.sh core/hooks/*.sh renderers/*/*.sh
       - name: tests
         run: ./test/run.sh

@@ -1,5 +1,9 @@
 # ccoverseer
 
+![ccoverseer demo: three Claude Code agents changing state in a polybar](docs/media/demo.gif)
+
+<sub>Recorded from the bundled demo (`scripts/demo.sh polybar`). No real agents are involved.</sub>
+
 Track parallel [Claude Code](https://code.claude.com/docs/) sessions from your
 i3 + polybar status bar. Each workspace that hosts a session gets a badge
 that shows whether the agent is working, finished, idle, or blocked waiting
@@ -17,7 +21,9 @@ for you.
 Clicking a badge jumps to its workspace. The badge follows the terminal if
 you move it to another workspace.
 
-<!-- TODO: demo GIF -->
+The full demo bar (fake workspaces on the left, the clock on the right):
+
+![Full-width demo bar](docs/media/bar.png)
 
 ## Requirements
 
@@ -121,11 +127,24 @@ timeout, bar width, terminals to detect.
 - The `rate_limits` schema belongs to Claude Code and may change. The bar
   shows `claude --` when it cannot read it.
 
+## Demo and theme preview
+
+`scripts/demo.sh` plays a 12-second scenario through every state: three
+agents start, one finishes, one asks for permission and is approved, one
+goes idle, and the usage bar climbs. It writes to its own cache in `/tmp`
+and leaves your real sessions alone.
+
+```sh
+scripts/demo.sh polybar          # opens a demo bar (scripts/demo-polybar.ini)
+eval "$(scripts/demo.sh env)"    # or point your own bar/renderer at the demo cache
+scripts/demo.sh play
+```
+
 ## Development
 
 ```sh
 ./test/run.sh                         # no X11 / i3 / Claude needed
-shellcheck -x install.sh lib/*.sh lib/resolver/*.sh core/*.sh core/hooks/*.sh renderers/*/*.sh
+shellcheck -x install.sh scripts/*.sh lib/*.sh lib/resolver/*.sh core/*.sh core/hooks/*.sh renderers/*/*.sh
 ```
 
 ## License
