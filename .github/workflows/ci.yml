@@ -1,0 +1,11 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: shellcheck
+        run: shellcheck -x -s bash install.sh test/run.sh lib/common.sh lib/resolver/*.sh core/*.sh core/hooks/*.sh renderers/*/*.sh
+      - name: tests
+        run: ./test/run.sh

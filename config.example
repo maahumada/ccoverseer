@@ -1,0 +1,32 @@
+# ccoverseer configuration: copy to ~/.config/ccoverseer/config
+# Plain shell assignments, sourced by every ccoverseer script. All optional.
+
+# --- Agents strip (renderers/polybar/agents.sh) ---
+# CCO_IDLE_AFTER=600          # seconds after Stop before "done" becomes "idle"
+# CCO_ALT_PERIOD=4            # seconds per face when topic icons are enabled
+# CCO_CLICK=1                 # click a badge to focus its workspace
+# CCO_BADGE_SEP="  "
+# CCO_GLYPH_WORKING="◐"  CCO_GLYPH_DONE="●"  CCO_GLYPH_IDLE="○"  CCO_GLYPH_BLOCKED="▲"
+# Polybar font index (the N of %{TN}) for each state glyph, e.g. a bigger font:
+# CCO_FONT_WORKING=4  CCO_FONT_DONE=5  CCO_FONT_IDLE=4  CCO_FONT_BLOCKED=5
+
+# --- Terminal detection ---
+# $WINDOWID is used when the terminal sets it (alacritty, kitty, xterm, urxvt,
+# st...). Otherwise the hook walks up the process tree looking for one of:
+# CCO_TERMINALS="alacritty kitty wezterm-gui foot st urxvt xterm xfce4-terminal konsole terminator tilix"
+
+# --- Usage bar (renderers/polybar/usage.sh) ---
+# CCO_USAGE_WIDTH=10
+# CCO_USAGE_FILLED="▰"  CCO_USAGE_EMPTY="▱"
+# CCO_USAGE_STYLE=fill        # or "indicator": one CCO_USAGE_INDICATOR marker on a CCO_USAGE_EMPTY track
+# CCO_USAGE_INDICATOR="●"
+# CCO_USAGE_SHOW_7D=0
+# CCO_USAGE_STALE_AFTER=900
+# Forward the statusLine payload to the status line you already use:
+# CCO_STATUSLINE_NEXT="npx -y ccstatusline@latest"
+
+# --- Topic icons (core/hooks/icon.sh, opt-in) ---
+# What may be sent to the model. Remove words to share less.
+# CCO_ICON_CONTEXT="repo readme prompt"
+# CCO_ICON_README_BYTES=1500
+# CCO_ICON_MODEL=haiku

@@ -1,0 +1,27 @@
+# label<TAB>codepoint (Nerd Font / Font Awesome)<TAB>description shown to the classifier
+# Copy to ~/.config/ccoverseer/labels.tsv to customise. Lines starting with # are ignored.
+# The "other" label is the fallback and must exist.
+frontend	e7ba	UI work: React, Vue, Svelte, Next.js, components, CSS, web dashboards
+backend	f121	APIs, services, endpoints, business logic, serverless functions
+web	f0ac	public websites, landing pages, SEO, static sites
+mobile	f10b	mobile apps (iOS, Android, React Native, Flutter)
+database	f1c0	databases, schemas, migrations, SQL queries, ORMs
+data	f0ec	data pipelines, ETL, Airflow, Spark, data warehouses
+analytics	f080	metrics, reporting, dashboards of numbers, data analysis
+ml	f0d0	machine learning, LLM apps, agents, prompts, embeddings
+infra	f233	infrastructure, servers, Docker, Kubernetes, Terraform
+cloud	f0c2	cloud provider services and account configuration
+deploy	f135	CI/CD, releases, packaging, deployments
+messaging	f1d8	queues, events, pub/sub, notifications, email/SMS
+payments	f09d	payments, billing, invoices, transactions
+cost	f155	cloud costs, FinOps, budgets
+bot	f17b	bots, scrapers, browser automation, RPA, chatbots
+security	f023	security, auth, permissions, secrets, cryptography
+testing	f0c3	tests, QA, coverage, fixtures
+debug	f188	bug fixing, troubleshooting, incidents
+monitoring	f0e4	observability, logs, alerts, tracing
+docs	f02d	documentation, specs, READMEs, writing
+refactor	f021	large refactors, migrations between frameworks, version upgrades
+tooling	f013	dotfiles, shell scripts, CLIs, editor and developer tooling
+game	f11b	games and game engines
+other	f120	anything else
