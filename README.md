@@ -1,8 +1,29 @@
-# ccoverseer
+<div align="center">
 
-![ccoverseer demo: three Claude Code agents changing state in a polybar](docs/media/demo.gif)
+<h1>ccoverseer</h1>
 
-<sub>Recorded from the bundled demo (`scripts/demo.sh polybar`). No real agents are involved.</sub>
+<p><strong>Know which Claude Code agent needs you, without leaving your workspace.</strong></p>
+
+<p>Per-workspace status badges and a rate-limit bar for i3 + polybar.</p>
+
+<p>
+  <a href="https://github.com/maahumada/ccoverseer/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/maahumada/ccoverseer/ci.yml?branch=main&amp;label=ci"></a>
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/github/license/maahumada/ccoverseer"></a>
+  <a href="https://www.shellcheck.net/"><img alt="Linted with ShellCheck" src="https://img.shields.io/badge/lint-shellcheck-4EAA25?logo=gnubash&amp;logoColor=white"></a>
+  <img alt="i3 + polybar on X11" src="https://img.shields.io/badge/i3%20%2B%20polybar-X11-5277C3?logo=i3&amp;logoColor=white">
+  <a href="https://code.claude.com/docs/"><img alt="Claude Code hooks" src="https://img.shields.io/badge/Claude%20Code-hooks-D97757?logo=claude&amp;logoColor=white"></a>
+</p>
+
+<img alt="Three Claude Code agents changing state in a polybar: working, done, blocked, approved, idle" src="docs/media/demo.gif" width="100%">
+
+<p>
+  <a href="#quick-start">Quick start</a> ·
+  <a href="#how-it-works">How it works</a> ·
+  <a href="#configuration">Configuration</a> ·
+  <a href="#demo-and-theme-preview">Demo</a>
+</p>
+
+</div>
 
 Track parallel [Claude Code](https://code.claude.com/docs/) sessions from your
 i3 + polybar status bar. Each workspace that hosts a session gets a badge
@@ -134,10 +155,11 @@ Set `CCO_STABLE_WIDTH=0` for narrower badges that change width.
 
 ## Demo and theme preview
 
-`scripts/demo.sh` plays a 12-second scenario through every state: three
-agents start, one finishes, one asks for permission and is approved, one
-goes idle, and the usage bar climbs. It writes to its own cache in `/tmp`
-and leaves your real sessions alone.
+The GIF at the top was recorded with `scripts/demo.sh`, which you can also
+use to preview your own bar theme. It plays a 12-second scenario through
+every state: three agents start, one finishes, one asks for permission and
+is approved, one goes idle, and the usage bar climbs. It writes to its own
+cache in `/tmp` and leaves your real sessions alone.
 
 ```sh
 scripts/demo.sh polybar          # opens a demo bar (scripts/demo-polybar.ini)
