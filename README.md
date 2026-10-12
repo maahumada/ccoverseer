@@ -115,6 +115,11 @@ All settings are optional shell variables in `~/.config/ccoverseer/config`.
 See [`config.example`](config.example): glyphs, polybar font per state, idle
 timeout, bar width, terminals to detect.
 
+With topic icons on, each badge alternates between two glyphs of different
+widths. By default the hidden one is still drawn, in a transparent color,
+so the badge keeps the same width and nothing next to the module moves.
+Set `CCO_STABLE_WIDTH=0` for narrower badges that change width.
+
 ## Limitations
 
 - Supports i3 + polybar on X11. Sway and Hyprland only need a resolver in

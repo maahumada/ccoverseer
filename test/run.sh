@@ -84,10 +84,18 @@ reset
 WID=111 state working; WID=222 state blocked
 mkdir -p "$I"; printf 'T\tsess\n' > "$I/w111"; printf 'T\tsess\n' > "$I/w222"
 tree '3\tw111\n5\tw222\n'
-eq "icon face (phase 1)"           "3 T  5 ▲" "$(CCO_ALT_PERIOD=1000000000 render)"
-eq "state face (phase 0)"          "3 ◐  5 ▲" "$(CCO_ALT_PERIOD=2000000000 render)"
+eq "icon face (phase 1)"           "3 T  5 ▲" "$(CCO_STABLE_WIDTH=0 CCO_ALT_PERIOD=1000000000 render)"
+eq "state face (phase 0)"          "3 ◐  5 ▲" "$(CCO_STABLE_WIDTH=0 CCO_ALT_PERIOD=2000000000 render)"
+G='%{F#00000000}'
+eq "stable width: icon shown, state ghosted"  "3 T${G}◐%{F-}  5 ▲${G}T%{F-}" "$(CCO_ALT_PERIOD=1000000000 render)"
+eq "stable width: state shown, icon ghosted"  "3 ◐${G}T%{F-}  5 ▲${G}T%{F-}" "$(CCO_ALT_PERIOD=2000000000 render)"
+strip_ghost() { sed -E 's/%\{F[^}]*\}//g; s/%\{F-\}//g'; }
+eq "stable width: same glyphs in both phases" \
+   "$(CCO_ALT_PERIOD=1000000000 render | strip_ghost | grep -o . | sort | tr -d '\n')" \
+   "$(CCO_ALT_PERIOD=2000000000 render | strip_ghost | grep -o . | sort | tr -d '\n')"
+eq "icon font tag" "3 %{T6}T%{T-}${G}◐%{F-}  5 ▲${G}%{T6}T%{T-}%{F-}" "$(CCO_FONT_ICON=6 CCO_ALT_PERIOD=1000000000 render)"
 eq "font tags and click actions"   "%{A1:i3-msg workspace number 3 >/dev/null:}3 %{T4}◐%{T-}%{A}" \
-   "$(rm -f "$A/w222"; CCO_FONT_WORKING=4 CCO_ALT_PERIOD=2000000000 CCO_RESOLVER="$tmp/resolver" "$root/renderers/polybar/agents.sh")"
+   "$(rm -f "$A/w222" "$I/w111"; CCO_FONT_WORKING=4 CCO_ALT_PERIOD=2000000000 CCO_RESOLVER="$tmp/resolver" "$root/renderers/polybar/agents.sh")"
 
 reset
 eq "no agents -> empty line" "" "$(render)"
@@ -104,6 +112,7 @@ eq "statusLine chaining" "next:31.4" \
    "$(printf '%s' "$payload" | CCO_STATUSLINE_NEXT='printf next:; jq -r .rate_limits.five_hour.used_percentage' "$root/core/usage-tap.sh")"
 eq "usage bar"          "▰▰▰▱▱▱▱▱▱▱ 31%" "$("$root/renderers/polybar/usage.sh")"
 eq "indicator style"   "──●─────── 31%" "$(CCO_USAGE_STYLE=indicator CCO_USAGE_EMPTY=─ "$root/renderers/polybar/usage.sh")"
+eq "usage font tag"     "%{T3}▰▰▰▱▱▱▱▱▱▱%{T-} 31%" "$(CCO_USAGE_FONT=3 "$root/renderers/polybar/usage.sh")"
 eq "usage bar with 7d"  "▰▰▰▱▱▱▱▱▱▱ 31% · 7d 12%" "$(CCO_USAGE_SHOW_7D=1 "$root/renderers/polybar/usage.sh")"
 jq '.captured_at = 1' "$CCO_CACHE_DIR/usage.json" > "$tmp/u" && mv "$tmp/u" "$CCO_CACHE_DIR/usage.json"
 eq "stale marker"       "▰▰▰▱▱▱▱▱▱▱ 31% ~" "$("$root/renderers/polybar/usage.sh")"
@@ -113,12 +122,13 @@ eq "no data"            "claude --" "$("$root/renderers/polybar/usage.sh")"
 echo "demo scenario"
 demo() { CCO_DEMO_DIR="$tmp/demo" "$root/scripts/demo.sh" "$@"; }
 demo_render() {
-    ( eval "$(demo env)"; CCO_CLICK=0 CCO_ALT_PERIOD=2000000000 "$root/renderers/polybar/agents.sh" )
+    ( eval "$(demo env)"; CCO_CLICK=0 CCO_ALT_PERIOD=2000000000 "$root/renderers/polybar/agents.sh" ) \
+        | sed -E 's/%\{F#00000000\}[^%]*%\{F-\}//g'   # drop the hidden (ghost) face
 }
 demo step 0; eq "demo: all working"            "1 ◐  2 ◐  3 ◐" "$(demo_render)"
-demo step 3; eq "demo: 2 done"                 "1 ◐  2 ●  3 ◐" "$(demo_render)"
+demo step 4; eq "demo: 2 done"                 "1 ◐  2 ●  3 ◐" "$(demo_render)"
 demo step 5; eq "demo: 3 blocked"              "1 ◐  2 ●  3 ▲" "$(demo_render)"
-demo step 7; eq "demo: 3 approved, working"    "1 ◐  2 ●  3 ◐" "$(demo_render)"
+demo step 8; eq "demo: 3 approved, working"    "1 ◐  2 ●  3 ◐" "$(demo_render)"
 demo step 9; eq "demo: 1 idle"                 "1 ○  2 ●  3 ◐" "$(demo_render)"
 eq "demo: usage climbs" "52" "$(demo step 10; jq -r .rate_limits.five_hour.used_percentage "$tmp/demo/usage.json")"
 gone "demo: real cache has no demo files" "$CCO_CACHE_DIR/demo-tree"

@@ -21,6 +21,7 @@ here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 : "${CCO_USAGE_STALE_AFTER:=900}"
 : "${CCO_USAGE_SHOW_7D:=0}"      # 1 = append the 7-day percentage
 : "${CCO_USAGE_NODATA:=claude --}"
+: "${CCO_USAGE_FONT:=}"          # optional polybar font index for the bar glyphs
 
 if [ ! -r "$CCO_USAGE_FILE" ] || ! command -v jq >/dev/null 2>&1; then
     echo "$CCO_USAGE_NODATA"; exit 0
@@ -48,6 +49,8 @@ for ((i = 0; i < CCO_USAGE_WIDTH; i++)); do
     else bar+=$CCO_USAGE_EMPTY
     fi
 done
+
+[ -n "$CCO_USAGE_FONT" ] && bar="%{T$CCO_USAGE_FONT}$bar%{T-}"
 
 extra=""
 if [ "$CCO_USAGE_SHOW_7D" = 1 ] && [ "$seven" != "-" ]; then

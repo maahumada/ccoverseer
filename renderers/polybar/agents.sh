@@ -29,6 +29,13 @@ here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 # Optional polybar font index (the N in %{TN}) per state glyph. Empty = the
 # module's default font. Useful to render the glyphs bigger than the digits.
 : "${CCO_FONT_WORKING:=}" "${CCO_FONT_DONE:=}" "${CCO_FONT_IDLE:=}" "${CCO_FONT_BLOCKED:=}"
+: "${CCO_FONT_ICON:=}"          # optional polybar font index for topic icons
+# Stable width: when topic icons alternate with the state glyph, draw the
+# hidden face too, in a transparent colour, right after the visible one. Each
+# badge then keeps the same width in both phases, so modules to its right (or
+# a centred block) never jump. Set to 0 for the narrower, jumping layout.
+: "${CCO_STABLE_WIDTH:=1}"
+: "${CCO_GHOST_COLOR:=#00000000}"
 : "${CCO_RESOLVER:=$here/../../lib/resolver/i3.sh}"
 
 [ -d "$CCO_AGENTS_DIR" ] || exit 0
@@ -113,8 +120,17 @@ while read -r ws; do
     st=${ws_state[$ws]}
     icon=""
     [ -r "$CCO_ICONS_DIR/${ws_key[$ws]}" ] && IFS=$'\t' read -r icon _ < "$CCO_ICONS_DIR/${ws_key[$ws]}"
-    if [ -n "$icon" ] && [ "$st" != blocked ] && [ "$phase" -eq 1 ]; then
-        badge="$ws $icon"
+    if [ -n "$icon" ]; then
+        state_face=$(glyph_for "$st")
+        icon_face=$icon
+        [ -n "$CCO_FONT_ICON" ] && icon_face="%{T$CCO_FONT_ICON}$icon%{T-}"
+        if [ "$st" != blocked ] && [ "$phase" -eq 1 ]; then
+            shown=$icon_face hidden=$state_face
+        else
+            shown=$state_face hidden=$icon_face
+        fi
+        badge="$ws $shown"
+        [ "$CCO_STABLE_WIDTH" = 1 ] && badge+="%{F$CCO_GHOST_COLOR}$hidden%{F-}"
     else
         badge="$ws $(glyph_for "$st")"
     fi

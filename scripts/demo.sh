@@ -4,14 +4,18 @@
 # agent. It writes to its own cache directory (never your real one), using
 # the format in docs/cache-contract.md.
 #
-#   scripts/demo.sh play [seconds_per_step]   loop the scenario (default 1s/step)
+#   scripts/demo.sh play                      loop the scenario (one step per second)
 #   scripts/demo.sh step <n>                  write frame n (0-11) once and exit
 #   scripts/demo.sh polybar                   play + open a demo bar (scripts/demo-polybar.ini)
 #   scripts/demo.sh env                       print the variables a renderer needs
 #
-# Scenario (12 steps): three agents start working on workspaces 1-3; 2
-# finishes, 3 asks for a permission, gets approved and resumes; 1 finishes and
-# goes idle; meanwhile the 5-hour usage bar climbs.
+# Scenario (12 steps, one per wall-clock second, step = epoch % 12): three
+# agents work on workspaces 1-3; 2 finishes, 3 asks for a permission (its ▲
+# stays while the others flip to their topic icons), gets approved and
+# resumes; 1 goes idle; meanwhile the 5-hour usage bar climbs. With the
+# default CCO_ALT_PERIOD=2, state faces show on seconds 0,1 mod 4 and topic
+# icons on 2,3 mod 4, so every transition lands on a state face and a
+# 12-second recording started on a multiple of 12 loops seamlessly.
 
 set -u
 
@@ -22,7 +26,7 @@ export CCO_CACHE_DIR="${CCO_DEMO_DIR:-${TMPDIR:-/tmp}/ccoverseer-demo-$UID}"
 # Keep the user's ~/.config/ccoverseer (fonts, labels) out of the demo.
 export CCO_CONFIG_DIR="$CCO_CACHE_DIR/config"
 export CCO_RESOLVER="$here/demo-resolver.sh"
-export CCO_ALT_PERIOD="${CCO_ALT_PERIOD:-2}"
+export CCO_ALT_PERIOD=2
 
 agents="$CCO_CACHE_DIR/agents"
 icons="$CCO_CACHE_DIR/icons"
@@ -55,10 +59,10 @@ set_usage() {
 
 frame() {
     case "$1" in
-        0|1|2) set_state 0 working; set_state 1 working; set_state 2 working ;;
-        3|4)   set_state 0 working; set_state 1 "done";    set_state 2 working ;;
-        5|6)   set_state 0 working; set_state 1 "done";    set_state 2 blocked ;;
-        7|8)   set_state 0 working; set_state 1 "done";    set_state 2 working ;;
+        0|1|2|3) set_state 0 working; set_state 1 working; set_state 2 working ;;
+        4)       set_state 0 working; set_state 1 "done";  set_state 2 working ;;
+        5|6|7)   set_state 0 working; set_state 1 "done";  set_state 2 blocked ;;
+        8)       set_state 0 working; set_state 1 "done";  set_state 2 working ;;
         9|10|11) set_state 0 "done" 3600; set_state 1 "done"; set_state 2 working ;;
         *) echo "demo: frame must be 0-11" >&2; return 1 ;;
     esac
@@ -67,24 +71,28 @@ frame() {
 }
 
 play() {
-    local dt=${1:-1} n=0
+    local ms wait
     setup
     while :; do
-        frame "$n"
-        n=$(( (n + 1) % 12 ))
-        sleep "$dt"
+        frame "$(( $(date +%s) % 12 ))"
+        # Sleep until the next wall-clock second so steps stay in phase.
+        ms=$(date +%3N); wait=$(( 1000 - 10#$ms )); [ "$wait" -ge 1000 ] && wait=999
+        sleep "0.$(printf '%03d' "$wait")"
     done
 }
 
 case "${1:-play}" in
-    play)  play "${2:-1}" ;;
+    play)  play ;;
     step)  setup; frame "${2:?usage: demo.sh step <0-11>}" ;;
     env)   printf 'export CCO_CACHE_DIR=%q CCO_CONFIG_DIR=%q CCO_RESOLVER=%q CCO_ALT_PERIOD=%q\n' \
                "$CCO_CACHE_DIR" "$CCO_CONFIG_DIR" "$CCO_RESOLVER" "$CCO_ALT_PERIOD" ;;
     polybar)
         command -v polybar >/dev/null 2>&1 || { echo "demo: polybar not found" >&2; exit 1; }
-        play "${2:-1}" & player=$!
+        play & player=$!
         trap 'kill "$player" 2>/dev/null' EXIT INT TERM
+        # Font slots defined in demo-polybar.ini.
+        export CCO_FONT_WORKING=3 CCO_FONT_DONE=3 CCO_FONT_IDLE=3 CCO_FONT_BLOCKED=3
+        export CCO_USAGE_FONT=4 CCO_FONT_ICON=5 CCO_BADGE_SEP=" "
         CCO_ROOT="$root" polybar -q -c "$here/demo-polybar.ini" demo ;;
     *) sed -n '2,15p' "$0"; exit 2 ;;
 esac
